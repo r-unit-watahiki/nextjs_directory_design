@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 // Next.js 16のproxy.ts
 // 認証が必要なルートと不要なルートの制御
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 公開ルート（認証不要）
