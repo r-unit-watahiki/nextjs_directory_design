@@ -36,6 +36,38 @@ proxy.ts          # ミドルウェア
 
 **参考**: [Next.js File Conventions](https://nextjs.org/docs/app/building-your-application/routing)
 
+### TypeScript 特別なファイル
+
+TypeScript/JavaScript のモジュールシステムで使用される特別なファイルです。
+
+```
+index.ts          # エクスポートの集約
+```
+
+**使用例:**
+
+```typescript
+// features/authentication/components/index.ts
+export { LoginForm } from "./LoginForm";
+export { SignupForm } from "./SignupForm";
+export { PasswordResetForm } from "./PasswordResetForm";
+
+// 使用側
+import { LoginForm, SignupForm } from "@/features/authentication/components";
+```
+
+**理由:**
+
+- ディレクトリからのインポートを簡潔にする
+- 内部構造の変更を吸収できる
+- エクスポートする要素を明示的に管理できる
+
+**注意:**
+
+- すべてのディレクトリに index.ts を作る必要はない
+- 複数のファイルをまとめてエクスポートする場合のみ使用
+- App Router のルートディレクトリには作成しない（Next.js の特別なファイルと競合する可能性）
+
 ### React コンポーネント
 
 **パスカルケース (PascalCase)** を使用します。
@@ -200,30 +232,6 @@ ApiResponse.ts
 
 - 複数の関連する型をまとめる場合はケバブケースが読みやすい
 - 単一の型の場合はパスカルケースでも良い（TypeScript の慣習）
-
-### テストファイル
-
-元のファイル名に `.test` または `.spec` を付与します。
-
-```
-UserProfile.test.tsx        # コンポーネントのテスト
-useAuth.test.ts             # フックのテスト
-api-client.test.ts          # ユーティリティのテスト
-format-date.spec.ts         # スペックスタイル
-```
-
-**Vitest の場合:**
-
-```
-UserProfile.test.tsx
-useAuth.test.ts
-```
-
-**Jest の場合:**
-
-```
-UserProfile.test.tsx または UserProfile.spec.tsx
-```
 
 ### 定数ファイル
 
@@ -692,7 +700,6 @@ export function getRelativeTime(date: Date): string {
 - [ ] カスタムフックは `use` で始まるキャメルケースになっている
 - [ ] Zustand ストアは `useXXXStore` という命名になっている
 - [ ] ユーティリティファイルはケバブケースになっている
-- [ ] テストファイルは `.test` または `.spec` サフィックスが付いている
 
 ### ディレクトリ命名
 
