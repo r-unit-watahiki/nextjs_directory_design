@@ -337,6 +337,7 @@ shared/
 - 外部ライブラリの初期化
 - ライブラリのラッパー関数
 - グローバルな設定
+- 外部 API（Rails API など）の統合
 
 **ルール:**
 
@@ -348,48 +349,92 @@ shared/
 
 ```
 lib/
-├── stripe/
-│   ├── client.ts            # Stripe初期化
-│   └── webhooks.ts          # Webhook処理
-├── redis/
-│   └── client.ts            # Redis接続
-├── email/
-│   ├── client.ts            # メール送信設定
-│   └── templates/           # メールテンプレート
-└── auth/
-    └── config.ts            # 認証設定（NextAuth等）
+└── api/                     # 外部API統合（Rails APIなど）
+    ├── client.ts            # 基本的なAPIクライアント設定
+    ├── interceptors.ts      # リクエスト/レスポンスインターセプター
+    ├── schemas/             # Zodスキーマ定義
+    │   ├── auth.ts          # 認証関連スキーマ
+    │   ├── users.ts         # ユーザー関連スキーマ
+    │   ├── recruitments.ts  # 求人関連スキーマ
+    │   └── shifts.ts        # シフト関連スキーマ
+    └── endpoints/           # エンドポイントごとのAPI関数
+        ├── auth.ts          # 認証関連API
+        ├── users.ts         # ユーザー関連API
+        ├── recruitments.ts  # 求人関連API
+        └── shifts.ts        # シフト関連API
 ```
 
-**例: 外部 API クライアント設定**
+#### API 統合の詳細（lib/api/）
+
+外部 API（Rails API など）を統合する場合の構成です。
+
+**各ファイルの役割:**
+
+1. **client.ts**: 基本的な fetch ラッパー、認証トークンの付与、エラーハンドリング
+2. **interceptors.ts**: リクエスト前処理・レスポンス後処理の共通ロジック
+3. **schemas/**: Zod スキーマによるリクエスト/レスポンスのバリデーション定義
+4. **endpoints/**: 実際の API 呼び出し関数（schemas を使用してバリデーション）
+
+**schemas の例:**
 
 ```typescript
-// lib/api/client.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+// lib/api/schemas/recruitments.ts
+import { z } from "zod";
 
-export async function apiClient<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+// レスポンス用
+export const recruitmentListSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  salary: z.number().positive(),
+  // ...
+});
 
-  // 認証トークンの取得
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+// リクエストパラメータ用
+export const createRecruitmentSchema = z.object({
+  title: z.string().min(1).max(100),
+  salary: z.number().positive(),
+  // ...
+});
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options?.headers,
-    },
-  });
+export type Recruitment = z.infer<typeof recruitmentSchema>;
+export type CreateRecruitmentInput = z.infer<typeof createRecruitmentSchema>;
+```
 
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
-  }
+**endpoints の例:**
 
-  return response.json();
+```typescript
+// lib/api/endpoints/recruitments.ts
+import { apiClient } from "../client";
+import {
+  recruitmentSchema,
+  createRecruitmentSchema,
+} from "../schemas/recruitments";
+
+export const recruitmentApi = {
+  async index() {
+    const response = await apiClient("/api/v1/recruitments");
+    return recruitmentsResponseSchema.parse(response);
+  },
+
+  async create(data: CreateRecruitmentInput) {
+    const validated = createRecruitmentSchema.parse(data);
+    const response = await apiClient("/api/v1/recruitments", {
+      method: "POST",
+      body: JSON.stringify(validated),
+    });
+    return recruitmentSchema.parse(response);
+  },
+};
+```
+
+**使用例:**
+
+```typescript
+// features/recruitment/server/queries.ts
+import { recruitmentApi } from "@/lib/api/endpoints/recruitments";
+
+export async function getRecruitments() {
+  return await recruitmentApi.get();
 }
 ```
 
@@ -399,58 +444,274 @@ export async function apiClient<T>(
 
 ### ファイルをどこに配置するか
 
-以下のフローチャートに従ってファイルの配置場所を決定します。
+以下の判断フローに従ってファイルの配置場所を決定します。
+
+#### ステップ 1: ファイルの種類を特定する
 
 ```
-質問: このファイルは何ですか？
+Q1: このファイルはNext.jsの特別なファイルですか？
+    (page.tsx, layout.tsx, loading.tsx, error.tsx, route.ts等)
 
-├─ Next.jsの特別なファイル（page.tsx, layout.tsx等）
-│  └─ → app/ に配置
-│
-├─ 外部ライブラリの設定
-│  └─ → lib/ に配置
-│
-├─ 特定の機能に関連するコード
-│  ├─ その機能でのみ使用される
-│  │  └─ → features/[feature-name]/ に配置
-│  └─ 複数の機能で使用される
-│     └─ → shared/ に配置
-│
-└─ プロジェクト全体で使用される汎用コード
-   └─ → shared/ に配置
+    YES → app/ に配置
+    NO  → Q2へ
+
+Q2: このファイルは外部ライブラリの設定・ラッパーですか？
+    (APIクライアント、認証プロバイダー、データベース接続等)
+
+    YES → lib/ に配置
+    NO  → Q3へ
+
+Q3: このファイルは特定の機能に関連していますか？
+
+    NO  → shared/ に配置（汎用的なコード）
+    YES → Q4へ
 ```
 
-### 具体例
+#### ステップ 2: features/ と shared/ を判断する（最重要）
 
-**Q: ログインフォームコンポーネントはどこに配置する？**
+```
+Q4: このファイルは特定の機能でのみ使用されますか？
 
-- A: `features/auth/components/LoginForm.tsx`
-- 理由: 認証機能固有のコンポーネント
+    判断基準:
+    ┌─────────────────────────────────────────────────┐
+    │ features/ に配置する条件（以下のいずれか）      │
+    ├─────────────────────────────────────────────────┤
+    │ - 特定の機能ドメインに強く結びついている        │
+    │ - 機能固有のビジネスロジックを含む              │
+    │ - 現時点で1つの機能でのみ使用されている         │
+    │ - 他の機能から独立して存在できる                │
+    └─────────────────────────────────────────────────┘
 
-**Q: Button コンポーネントはどこに配置する？**
+    ┌─────────────────────────────────────────────────┐
+    │ shared/ に配置する条件（以下のいずれか）        │
+    ├─────────────────────────────────────────────────┤
+    │ - 2つ以上の機能で使用されている                 │
+    │ - どの機能にも依存しない汎用的なコード          │
+    │ - UIライブラリのコンポーネント                  │
+    │ - 汎用的なユーティリティ・ヘルパー関数          │
+    │ - プロジェクト全体の共通型定義                  │
+    └─────────────────────────────────────────────────┘
 
-- A: `shared/components/ui/Button.tsx`
-- 理由: プロジェクト全体で使用される汎用 UI コンポーネント
+    YES (features条件に該当) → features/[feature-name]/ に配置
+    NO  (shared条件に該当)   → shared/ に配置
+```
 
-**Q: 日付フォーマット関数はどこに配置する？**
+### 判断に迷いやすいケースと解決方法
 
-- A: `shared/utils/format-date.ts`
-- 理由: プロジェクト全体で使用される汎用ユーティリティ
+#### ケース 1: 複数機能で使うが機能固有のロジックを含む
 
-**Q: 求人データの型定義はどこに配置する？**
+```typescript
+// 例: 求人とシフトの両方で使う「応募者ステータス」コンポーネント
 
-- A: `features/recruitment/types/recruitment-types.ts`
-- 理由: 求人機能固有の型定義
+// Bad: どちらに置くか迷う
+features / recruitment / components / ApplicantStatus.tsx; // recruitmentだけ？
+shared / components / ApplicantStatus.tsx; // 共有？
 
-**Q: 外部 API クライアントの設定はどこに配置する？**
+// Good: ビジネスロジックを分離
+// 機能固有のロジックは各featuresに
+features / recruitment / utils / get - applicant - status.ts;
+features / shift / utils / get - applicant - status.ts;
 
-- A: `lib/api/client.ts`
-- 理由: 外部ライブラリの設定
+// 表示用の汎用コンポーネントはsharedに
+shared / components / common / StatusBadge.tsx; // 汎用的なステータス表示
+```
 
-**Q: ダッシュボードページはどこに配置する？**
+**判断ポイント**: ビジネスロジックと表示ロジックを分離する
 
-- A: `app/(private)/dashboard/page.tsx`
-- 理由: Next.js App Router のページファイル
+#### ケース 2: 認証など複数箇所で使う機能
+
+```typescript
+// 例: 認証フック - 全ページで使用される
+
+// Bad: featuresに置くと他機能から依存してしまう
+features / auth / hooks / useAuth.ts;
+// → features/recruitment から features/auth に依存（避けるべき）
+
+// Good: 全体で使用されるならsharedに
+shared / hooks / useAuth.ts;
+// → どの機能からも自由に使用可能
+
+// authのビジネスロジック（ログイン処理等）はfeaturesに残す
+features / auth / server / actions.ts; // ログイン・ログアウト処理
+features / auth / components / LoginForm.tsx; // ログインフォーム
+```
+
+**判断ポイント**: 2 つ以上の機能で使う場合は shared に配置
+
+#### ケース 3: 機能固有だが将来的に汎用化する可能性がある
+
+```typescript
+// 例: 最初は求人機能でのみ使う日付選択コンポーネント
+
+// Step1: まずはfeaturesに配置
+features/recruitment/components/DateRangePicker.tsx
+
+// Step2: 他の機能（シフト等）でも使うようになったら移動
+// 1. sharedに移動
+shared/components/common/DateRangePicker.tsx
+
+// 2. featuresの参照を更新
+// features/recruitment/components/RecruitmentForm.tsx
+- import { DateRangePicker } from "./DateRangePicker";
++ import { DateRangePicker } from "@/shared/components/common";
+```
+
+**判断ポイント**: 最初は features に配置し、実際に複数箇所で使うようになったら shared に移動する（YAGNI 原則）
+
+#### ケース 4: 型定義の配置
+
+```typescript
+// Good: 機能固有の型 → features
+features/recruitment/types/recruitment-types.ts
+export interface Recruitment { ... }
+export type RecruitmentStatus = "draft" | "published";
+
+// Good: 複数機能で使う共通型 → shared
+shared/types/common-types.ts
+export type Id = string;
+export type Timestamp = Date;
+export interface Pagination { ... }
+
+// Good: API全体の型 → shared
+shared/types/api-types.ts
+export interface ApiResponse<T> { ... }
+export interface ApiError { ... }
+
+// Good: 外部API（Rails等）のスキーマ → lib
+lib/api/schemas/recruitments.ts
+export const recruitmentSchema = z.object({ ... });
+```
+
+**判断ポイント**:
+
+- 機能のドメインモデル → features
+- 複数機能で共有 → shared
+- 外部 API の型定義 → lib
+
+#### ケース 5: フック・ユーティリティの配置
+
+```typescript
+// Good: 機能固有のフック → features
+features / recruitment / hooks / useRecruitmentForm.ts; // 求人フォーム専用
+features / recruitment / hooks / useRecruitmentFilter.ts; // 求人フィルター専用
+
+// Good: 汎用的なフック → shared
+shared / hooks / useDebounce.ts; // どこでも使える
+shared / hooks / useLocalStorage.ts; // どこでも使える
+shared / hooks / useAuth.ts; // 全体で使う認証
+
+// Good: 機能固有のユーティリティ → features
+features / recruitment / utils / validate - salary.ts; // 給与バリデーション
+features / recruitment / utils / format - job - type.ts; // 雇用形態フォーマット
+
+// Good: 汎用的なユーティリティ → shared
+shared / utils / format - date.ts; // 日付フォーマット
+shared / utils / cn.ts; // className結合
+```
+
+**判断ポイント**: 機能ドメインの知識が必要かどうか
+
+### 配置場所のクイックリファレンス
+
+| ファイルの種類             | 配置場所                      | 例                             |
+| -------------------------- | ----------------------------- | ------------------------------ |
+| **Next.js 特別なファイル** | `app/`                        | page.tsx, layout.tsx, route.ts |
+| **外部ライブラリ設定**     | `lib/`                        | API クライアント、DB 設定      |
+| **機能固有コンポーネント** | `features/[name]/components/` | LoginForm, RecruitmentCard     |
+| **汎用 UI コンポーネント** | `shared/components/ui/`       | Button, Input, Dialog          |
+| **機能固有フック**         | `features/[name]/hooks/`      | useRecruitmentForm             |
+| **汎用フック**             | `shared/hooks/`               | useDebounce, useAuth           |
+| **機能固有型定義**         | `features/[name]/types/`      | Recruitment, RecruitmentStatus |
+| **共通型定義**             | `shared/types/`               | ApiResponse, Pagination        |
+| **機能固有ユーティリティ** | `features/[name]/utils/`      | validate-salary                |
+| **汎用ユーティリティ**     | `shared/utils/`               | format-date, cn                |
+| **サーバーアクション**     | `features/[name]/server/`     | actions.ts, queries.ts         |
+| **外部 API スキーマ**      | `lib/api/schemas/`            | recruitments.ts                |
+
+### 実践的な配置例
+
+#### 例 1: ログインフォームコンポーネント
+
+```
+Q: ログインフォームはどこに配置する？
+A: features/auth/components/LoginForm.tsx
+
+理由:
+- 認証機能に強く結びついている
+- ログイン固有のビジネスロジックを含む
+- 他機能から独立している
+```
+
+#### 例 2: Button コンポーネント
+
+```
+Q: Buttonコンポーネントはどこに配置する？
+A: shared/components/ui/Button.tsx
+
+理由:
+- プロジェクト全体で使用される
+- どの機能にも依存しない汎用UI
+- UIライブラリのコンポーネント
+```
+
+#### 例 3: 認証フック（useAuth）
+
+```
+Q: useAuthフックはどこに配置する？
+A: shared/hooks/useAuth.ts
+
+理由:
+- 複数のページ・機能で使用される
+- プロジェクト全体の認証状態を管理
+- 他のfeaturesから参照される
+
+※ ログイン処理自体は features/auth/server/actions.ts に配置
+```
+
+#### 例 4: 求人データの型定義
+
+```
+Q: Recruitment型はどこに配置する？
+A: features/recruitment/types/recruitment-types.ts
+
+理由:
+- 求人機能のドメインモデル
+- 求人固有のビジネスルールを含む
+```
+
+#### 例 5: 日付フォーマット関数
+
+```
+Q: 日付フォーマット関数はどこに配置する？
+A: shared/utils/format-date.ts
+
+理由:
+- プロジェクト全体で使用される
+- どの機能にも依存しない汎用ユーティリティ
+- ドメイン知識が不要
+```
+
+#### 例 6: 外部 API クライアント
+
+```
+Q: Rails APIのクライアント設定はどこに配置する？
+A: lib/api/client.ts
+
+理由:
+- 外部ライブラリ（fetch）のラッパー
+- グローバルな設定
+```
+
+#### 例 7: ダッシュボードページ
+
+```
+Q: ダッシュボードページはどこに配置する？
+A: app/(private)/dashboard/page.tsx
+
+理由:
+- Next.js App Routerの特別なファイル
+- ルーティングを定義
+```
 
 ---
 
