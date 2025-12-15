@@ -211,27 +211,27 @@ export function formatDate(date: Date): string {
 
 ### 型定義ファイル
 
-**ケバブケース (kebab-case)** を使用し、`-types` サフィックスを推奨します。
+**ケバブケース (kebab-case)** を使用します。
 
 ```
-user-types.ts         # 推奨: 複数の型をまとめる
+# 複数の型をまとめる場合: -types (複数形)
+user-types.ts
 api-types.ts
 product-types.ts
 form-types.ts
-```
 
-単一の主要な型を定義する場合は **パスカルケース** も可:
-
-```
-User.ts
-Product.ts
-ApiResponse.ts
+# 単一の型の場合: -type (単数形)
+user-type.ts
+product-type.ts
+api-response-type.ts
 ```
 
 **理由:**
 
-- 複数の関連する型をまとめる場合はケバブケースが読みやすい
-- 単一の型の場合はパスカルケースでも良い（TypeScript の慣習）
+- ファイル命名規則を統一し、一貫性を保つ
+- ケバブケースは他のファイル名との統一感がある
+- `-type` / `-types` サフィックスで型定義ファイルであることが明確
+- 単数形/複数形を使い分けることで、ファイルの内容が推測しやすい
 
 ### 定数ファイル
 

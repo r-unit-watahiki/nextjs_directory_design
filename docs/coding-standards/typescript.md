@@ -11,24 +11,41 @@
 
 ### type vs interface
 
-基本的に `type` を使用し、以下の場合のみ `interface` を使用する。
+`type` と `interface` は以下のように使い分ける。
 
-- ライブラリの公開 API を定義する場合
+**type を使用する場合:**
+
+- ユニオン型
+- 交差型
+- プリミティブ型のエイリアス
+- タプル型
+- マップ型
+
+**interface を使用する場合:**
+
+- オブジェクトの形状を定義する場合
 - Declaration Merging が必要な場合
 
 ```tsx
-// Good: 通常は type を使用
-type User = {
+// type はユニオン型や交差型
+type Status = "pending" | "success" | "error";
+type Response = SuccessResponse | ErrorResponse;
+type UserWithPosts = User & { posts: Post[] };
+type ID = string | number;
+type Coordinates = [number, number];
+
+// interface はオブジェクトの形状、マージ
+interface User {
   id: string;
   name: string;
   email: string;
-};
+}
 
-type UserWithRole = User & {
-  role: "admin" | "user";
-};
+interface Request {
+  user?: User;
+}
 
-// interface を使う場合（Declaration Merging）
+// Declaration Merging の例
 interface Window {
   myCustomProperty: string;
 }
@@ -53,27 +70,27 @@ type Age = Number;
 ### オブジェクト型
 
 ```tsx
-// Good: 読みやすい形式で定義
-type User = {
+// Good: オブジェクトの形状は interface で定義
+interface User {
   id: string;
   name: string;
   email: string;
   age?: number; // オプショナル
   readonly createdAt: Date; // 読み取り専用
-};
+}
 
-// ネストしたオブジェクトは別の型として定義
-type Address = {
+// ネストしたオブジェクトは別の interface として定義
+interface Address {
   zipCode: string;
   prefecture: string;
   city: string;
-};
+}
 
-type UserWithAddress = {
+interface UserWithAddress {
   id: string;
   name: string;
   address: Address;
-};
+}
 ```
 
 ### 配列型
@@ -117,29 +134,29 @@ function getStatus(status: Status) {
 
 ### Intersection 型
 
-既存の型を組み合わせる場合に使用する。
+既存の型を組み合わせる場合に type を使用する。
 
 ```tsx
-type Timestamps = {
+interface Timestamps {
   createdAt: Date;
   updatedAt: Date;
-};
+}
 
-type User = {
+interface User {
   id: string;
   name: string;
-};
+}
 
-// Good: 既存の型を組み合わせる
+// Good: 交差型は type で定義
 type UserWithTimestamps = User & Timestamps;
 
 // Bad: 同じプロパティを再定義しない
-type UserWithTimestamps = {
+interface UserWithTimestamps {
   id: string;
   name: string;
   createdAt: Date;
   updatedAt: Date;
-};
+}
 ```
 
 ## 型アサーション
@@ -195,12 +212,12 @@ function getUserOrThrow(id: string): User {
 ### 基本的な使い方
 
 ```tsx
-// 汎用的なデータ取得関数
-type ApiResponse<T> = {
+// 汎用的なデータ取得関数（ジェネリックな型定義）
+interface ApiResponse<T> {
   data: T;
   status: number;
   message: string;
-};
+}
 
 async function fetchData<T>(url: string): Promise<ApiResponse<T>> {
   const response = await fetch(url);
@@ -233,10 +250,10 @@ function merge<T extends object, U extends object>(obj1: T, obj2: U): T & U {
 ### デフォルト型パラメータ
 
 ```tsx
-type ApiResponse<T = unknown> = {
+interface ApiResponse<T = unknown> {
   data: T;
   status: number;
-};
+}
 
 // デフォルト型が使用される
 const response: ApiResponse = {
@@ -258,12 +275,12 @@ TypeScript 組み込みのユーティリティ型を活用する。
 ### Partial と Required
 
 ```tsx
-type User = {
+interface User {
   id: string;
   name: string;
   email: string;
   age: number;
-};
+}
 
 // すべてのプロパティをオプショナルにする
 type PartialUser = Partial<User>;
@@ -280,13 +297,13 @@ type RequiredUser = Required<User>;
 ### Pick と Omit
 
 ```tsx
-type User = {
+interface User {
   id: string;
   name: string;
   email: string;
   password: string;
   createdAt: Date;
-};
+}
 
 // 必要なプロパティのみを選択
 type UserPublicInfo = Pick<User, "id" | "name" | "email">;
@@ -355,18 +372,18 @@ function printValue(value: string | number) {
 ### カスタム型ガード
 
 ```tsx
-type User = {
+interface User {
   type: "user";
   id: string;
   name: string;
-};
+}
 
-type Admin = {
+interface Admin {
   type: "admin";
   id: string;
   name: string;
   permissions: string[];
-};
+}
 
 // 型述語を使ったカスタム型ガード
 function isAdmin(user: User | Admin): user is Admin {
@@ -385,19 +402,20 @@ function handleUser(user: User | Admin) {
 ### Discriminated Union
 
 ```tsx
-type SuccessResponse = {
+interface SuccessResponse {
   status: "success";
   data: unknown;
-};
+}
 
-type ErrorResponse = {
+interface ErrorResponse {
   status: "error";
   error: {
     message: string;
     code: number;
   };
-};
+}
 
+// ユニオン型は type で定義
 type ApiResponse = SuccessResponse | ErrorResponse;
 
 function handleResponse(response: ApiResponse) {
@@ -470,11 +488,11 @@ type OnChange = (value: string) => void;
 
 ```tsx
 // src/types/user.ts
-export type User = {
+export interface User {
   id: string;
   name: string;
   email: string;
-};
+}
 
 export type UserRole = "admin" | "editor" | "viewer";
 
