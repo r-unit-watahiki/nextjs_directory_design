@@ -1,0 +1,84 @@
+# ls-lint configuration
+# https://ls-lint.org/2.x/configuration/the-basics.html
+
+ls:
+  # All directories should use kebab-case or special Next.js patterns
+  .dir: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^\([a-z][a-z0-9-]*\)$|^_[a-z][a-z0-9-]*$ # kebab-case, (route-groups), or _private
+
+  # App Router - Next.js special files and routing (matches app anywhere in path)
+  "**/app/**":
+    .tsx: regex:^(page|layout|loading|error|not-found|template|default)$|^[A-Z][a-zA-Z0-9]*$ # Next.js files or PascalCase components
+    .ts: regex:^(route|middleware|proxy)$|^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$ # route files, stores, hooks, or kebab-case
+
+  # Features directory (recursive: applies to all nested paths under features/)
+  "**/features/**":
+    .tsx: PascalCase # Components
+    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # Stores, hooks, kebab-case utils, or index
+    .stories.tsx: PascalCase
+
+  # Shared/Components directories - MUST come before more specific subdirectories
+  "**/components/**":
+    .tsx: PascalCase
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # Hooks, kebab-case utils, or index
+    .stories.tsx: PascalCase
+
+  "**/shared/**":
+    .tsx: PascalCase
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # Hooks, kebab-case utils, or index
+    .stories.tsx: PascalCase
+
+  # Specific subdirectories - MUST come after shared/components to override them
+  # Stores directory (Zustand)
+  "**/stores/**":
+    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, or index
+
+  # Hooks directory
+  "**/hooks/**":
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^index$ # useAuth, useLocalStorage, or index
+
+  # Lib directory (utilities and helpers)
+  "**/lib/**":
+    .ts: kebab-case
+
+  # Utils directory
+  "**/utils/**":
+    .ts: kebab-case
+
+  # Types directory - must use kebab-case with -type or -types suffix
+  "**/types/**":
+    .ts: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*-(type|types)$|^index$ # kebab-case ending with -type or -types, or index
+
+  # Constants directory
+  "**/constants/**":
+    .ts: kebab-case
+
+  # Styles directory
+  "**/styles/**":
+    .css: kebab-case
+
+  # Public directory
+  public:
+    .dir: kebab-case
+
+  # Root level and src directory
+  .:
+    .tsx: PascalCase
+    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$
+    .js: kebab-case
+    .json: kebab-case
+    .md: kebab-case
+
+  src:
+    .tsx: PascalCase
+    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$
+
+ignore:
+  - node_modules
+  - .next
+  - dist
+  - build
+  - .git
+  - .vscode
+  - coverage
+  - .turbo
+  - out
