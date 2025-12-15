@@ -16,7 +16,6 @@
 - [命名規則](./conventions/naming.md) - ファイル、コンポーネント、関数などの命名ルール
 - [ディレクトリ構成](./conventions/directory.md) - ディレクトリ構成のルール
 - [ファイル整理](./conventions/file-organization.md) - ファイルの整理方法
-- [Import](./conventions/imports.md) - import 順序とエイリアスの使い方
 
 ### Coding Standards（コーディング標準）
 
