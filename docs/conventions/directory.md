@@ -26,13 +26,9 @@
 
 ### 2. コロケーション (Colocation)
 
-関連するファイルは可能な限り近くに配置します。
+関連するファイルは可能な限り近くに配置します（例: コンポーネントとそのテスト・スタイル）。
 
-**例:**
-
-- コンポーネントとそのスタイル
-- コンポーネントとそのテスト
-- 機能とその専用フック・ストア
+詳細は [ファイル整理ルール](./file-organization.md) を参照してください。
 
 ### 3. 明確な責務分離
 
@@ -768,45 +764,24 @@ features/
     └── server/
 ```
 
-### 4. index.ts でエクスポートを集約
+### 4. ファイル整理のルール
 
-各ディレクトリに `index.ts` を配置し、エクスポートを集約します。
-
-```typescript
-// features/auth/components/index.ts
-export { LoginForm } from "./LoginForm";
-export { RegisterForm } from "./RegisterForm";
-
-// 使用側
-import { LoginForm, RegisterForm } from "@/features/auth/components";
-```
-
-### 5. テストファイルは隣に配置
-
-テストファイルは対象ファイルと同じディレクトリに配置します。
-
-```
-features/auth/components/
-├── LoginForm.tsx
-├── LoginForm.test.tsx
-├── RegisterForm.tsx
-└── RegisterForm.test.tsx
-```
+ファイルの配置、命名、コロケーション、分割基準については [ファイル整理ルール](./file-organization.md) を参照してください。
 
 ---
 
 ## チェックリスト
 
-新しいファイルやディレクトリを作成する際は、以下を確認してください。
+新しいディレクトリを作成する際は、以下を確認してください。
 
-- [ ] ファイルは適切なディレクトリに配置されている
 - [ ] ディレクトリ名はケバブケースになっている
 - [ ] 機能固有のコードは `features/` に配置されている
 - [ ] 共有コードは `shared/` に配置されている
 - [ ] ライブラリの設定は `lib/` に配置されている
 - [ ] ディレクトリの階層が深すぎない（3〜4 レベル程度）
 - [ ] 他の機能と一貫性のある構造になっている
-- [ ] 必要に応じて `index.ts` でエクスポートを集約している
+
+ファイル単位の配置については [ファイル整理ルール](./file-organization.md) を参照してください。
 
 ---
 

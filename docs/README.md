@@ -23,7 +23,6 @@
 - [TypeScript](./coding-standards/typescript.md) - TypeScript 規約
 - [React](./coding-standards/react.md) - React/Next.js 規約
 - [スタイリング](./coding-standards/styling.md) - Tailwind CSS 規約
-- [テスト](./coding-standards/testing.md) - テスト規約
 
 ### Workflows（ワークフロー）
 
