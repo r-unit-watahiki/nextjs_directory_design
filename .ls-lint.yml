@@ -39,6 +39,9 @@ ls:
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
+  "src/features/**/server/**":
+    .ts: kebab-case # ルートハンドラーや server-only ユーティリティ
+
   # Shared内の特定ディレクトリ - より広いルールより前に配置
   "src/shared/stores/**":
     .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, または index
@@ -50,6 +53,9 @@ ls:
     .tsx: PascalCase
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
+
+  "src/shared/**/server/**":
+    .ts: kebab-case # server-only ラッパーや API 呼び出し
 
   "src/shared/utils/**":
     .ts: kebab-case
