@@ -6,9 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check",
+    "lint": "biome check && ls-lint",
+    "lint:fix": "biome check --write && ls-lint",
+    "lint:biome": "biome check",
     "lint:ls": "ls-lint",
-    "lint:all": "biome check && ls-lint",
     "format": "biome format --write"
   },
   "dependencies": {

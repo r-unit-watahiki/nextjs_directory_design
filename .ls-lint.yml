@@ -16,25 +16,41 @@ ls:
     .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # ストア、フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
-  # Shared/Components ディレクトリ - より具体的なサブディレクトリより前に配置する必要がある
-  "**/components/**":
+  # 特定のサブディレクトリ - より広いパターンより前に配置してルールを優先
+  # Shared内の特定ディレクトリ - より長いパスを優先するため shared/** より前に配置
+  "**/shared/stores/**":
+    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, または index
+
+  "**/shared/hooks/**":
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^index$ # useAuth, useLocalStorage, または index
+
+  "**/shared/components/**":
     .tsx: PascalCase
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
+  # Features内の特定ディレクトリ
+  "**/features/**/stores/**":
+    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, または index
+
+  "**/features/**/hooks/**":
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^index$ # useAuth, useLocalStorage, または index
+
+  "**/features/**/components/**":
+    .tsx: PascalCase
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
+    .stories.tsx: PascalCase
+
+  # App内の特定ディレクトリ
+  "**/app/**/components/**":
+    .tsx: PascalCase
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
+
+  # Shared ディレクトリ - 上記の特定のサブディレクトリ以外に適用
   "**/shared/**":
     .tsx: PascalCase
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
-
-  # 特定のサブディレクトリ - shared/components の後に配置してルールを上書き
-  # Stores ディレクトリ（Zustand）
-  "**/stores/**":
-    .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, または index
-
-  # Hooks ディレクトリ
-  "**/hooks/**":
-    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^index$ # useAuth, useLocalStorage, または index
 
   # Lib ディレクトリ（ユーティリティとヘルパー）
   "**/lib/**":

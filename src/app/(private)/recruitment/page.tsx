@@ -5,25 +5,28 @@ export default function RecruitmentPage() {
       <div className="space-y-6">
         {[
           {
+            id: "1",
             title: "ホールスタッフ募集",
             type: "アルバイト",
             salary: "時給 1,200円〜",
             status: "募集中",
           },
           {
+            id: "2",
             title: "キッチンスタッフ募集",
             type: "アルバイト",
             salary: "時給 1,300円〜",
             status: "募集中",
           },
           {
+            id: "3",
             title: "店長候補募集",
             type: "正社員",
             salary: "月給 280,000円〜",
             status: "応募あり",
           },
-        ].map((job, i) => (
-          <div key={i} className="bg-white p-6 rounded-lg shadow">
+        ].map((job) => (
+          <div key={job.id} className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-xl font-semibold mb-2">{job.title}</h2>
@@ -46,7 +49,10 @@ export default function RecruitmentPage() {
                 {job.salary}
               </p>
             </div>
-            <button className="text-blue-600 hover:text-blue-700 font-medium">
+            <button
+              type="button"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
               詳細を見る →
             </button>
           </div>

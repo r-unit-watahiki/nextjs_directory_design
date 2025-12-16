@@ -11,26 +11,29 @@ export default function MessagesPage() {
           <div className="divide-y">
             {[
               {
+                id: "1",
                 name: "山田 太郎",
                 message: "明日のシフトについて",
                 time: "10:30",
                 unread: true,
               },
               {
+                id: "2",
                 name: "佐藤 花子",
                 message: "お疲れ様です",
                 time: "昨日",
                 unread: false,
               },
               {
+                id: "3",
                 name: "鈴木 一郎",
                 message: "了解しました",
                 time: "2日前",
                 unread: false,
               },
-            ].map((msg, i) => (
+            ].map((msg) => (
               <div
-                key={i}
+                key={msg.id}
                 className={`p-4 hover:bg-gray-50 cursor-pointer ${
                   msg.unread ? "bg-blue-50" : ""
                 }`}
@@ -73,7 +76,10 @@ export default function MessagesPage() {
                 placeholder="メッセージを入力..."
                 className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              <button
+                type="button"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
                 送信
               </button>
             </div>

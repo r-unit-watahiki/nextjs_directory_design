@@ -5,8 +5,7 @@
   "biome.enabled": true,
   "biome.lspBin": "node_modules/@biomejs/biome/bin/biome",
   "editor.codeActionsOnSave": {
-    "source.organizeImports.biome": "explicit",
-    "quickfix.biome": "explicit"
+    "source.fixAll.biome": "explicit"
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",
