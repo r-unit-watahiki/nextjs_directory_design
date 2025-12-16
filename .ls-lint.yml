@@ -3,7 +3,7 @@
 
 ls:
   # すべてのディレクトリは kebab-case または Next.js の特別なパターンを使用
-  .dir: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^\([a-z][a-z0-9-]*\)$|^_[a-z][a-z0-9-]*$ # kebab-case, (route-groups), or _private
+  .dir: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^\([a-z][a-z0-9-]*\)$|^_[a-z][a-z0-9-]*$|^\.[a-z][a-z0-9-]*$ # kebab-case, (route-groups), _private, or dot-prefixed config dirs
   "src/**":
     .dir: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^\([a-z][a-z0-9-]*\)$|^_[a-z][a-z0-9-]*$ # ネストされたディレクトリにも適用
 
