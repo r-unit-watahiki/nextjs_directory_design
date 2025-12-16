@@ -5,72 +5,73 @@ ls:
   # すべてのディレクトリは kebab-case または Next.js の特別なパターンを使用
   .dir: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^\([a-z][a-z0-9-]*\)$|^_[a-z][a-z0-9-]*$ # kebab-case, (route-groups), or _private
 
-  # App Router - Next.js の特別なファイルとルーティング（パス内のどこにでも適用）
-  "**/app/**":
+  # App Router - Next.js の特別なファイルとルーティング
+  src/app:
+    .tsx: regex:^(page|layout|loading|error|not-found|template|default)$|^[A-Z][a-zA-Z0-9]*$ # Next.js ファイル または PascalCase コンポーネント
+    .ts: regex:^(route|middleware|proxy)$|^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$ # route ファイル、ストア、フック、または kebab-case
+    .css: kebab-case
+
+  # App内のネストされたディレクトリ（route groups や private など）
+  "src/app/**":
     .tsx: regex:^(page|layout|loading|error|not-found|template|default)$|^[A-Z][a-zA-Z0-9]*$ # Next.js ファイル または PascalCase コンポーネント
     .ts: regex:^(route|middleware|proxy)$|^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$ # route ファイル、ストア、フック、または kebab-case
 
+  # App内の components ディレクトリ（_components など）
+  "src/app/**/components/**":
+    .tsx: PascalCase
+    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
+
   # Features ディレクトリ（再帰的: features 配下のすべてのネストされたパスに適用）
-  "**/features/**":
+  "src/features/**":
     .tsx: PascalCase # コンポーネント
     .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # ストア、フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
-  # 特定のサブディレクトリ - より広いパターンより前に配置してルールを優先
-  # Shared内の特定ディレクトリ - より長いパスを優先するため shared/** より前に配置
-  "**/shared/stores/**":
+  # Features内の特定ディレクトリ - より具体的なルール
+  "src/features/**/stores/**":
     .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, または index
 
-  "**/shared/hooks/**":
+  "src/features/**/hooks/**":
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^index$ # useAuth, useLocalStorage, または index
 
-  "**/shared/components/**":
+  "src/features/**/components/**":
     .tsx: PascalCase
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
-  # Features内の特定ディレクトリ
-  "**/features/**/stores/**":
+  # Shared内の特定ディレクトリ - より広いルールより前に配置
+  "src/shared/stores/**":
     .ts: regex:^use[A-Z][a-zA-Z0-9]*Store$|^index$ # useAuthStore, useCartStore, または index
 
-  "**/features/**/hooks/**":
+  "src/shared/hooks/**":
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^index$ # useAuth, useLocalStorage, または index
 
-  "**/features/**/components/**":
+  "src/shared/components/**":
     .tsx: PascalCase
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
-  # App内の特定ディレクトリ
-  "**/app/**/components/**":
-    .tsx: PascalCase
-    .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
+  "src/shared/utils/**":
+    .ts: kebab-case
 
-  # Shared ディレクトリ - 上記の特定のサブディレクトリ以外に適用
-  "**/shared/**":
+  "src/shared/types/**":
+    .ts: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*-(type|types)$|^index$ # kebab-case で -type または -types で終わる、または index
+
+  "src/shared/constants/**":
+    .ts: kebab-case
+
+  "src/shared/styles/**":
+    .css: kebab-case
+
+  # Shared ディレクトリ - 上記の特定のサブディレクトリに当てはまらないファイル
+  "src/shared/**":
     .tsx: PascalCase
     .ts: regex:^use[a-z][a-zA-Z0-9]*$|^[a-z][a-z0-9]*(-[a-z0-9]+)*$|^index$ # フック、kebab-case ユーティリティ、または index
     .stories.tsx: PascalCase
 
   # Lib ディレクトリ（ユーティリティとヘルパー）
-  "**/lib/**":
+  "src/lib/**":
     .ts: kebab-case
-
-  # Utils ディレクトリ
-  "**/utils/**":
-    .ts: kebab-case
-
-  # Types ディレクトリ - kebab-case で -type または -types サフィックスを必須とする
-  "**/types/**":
-    .ts: regex:^[a-z][a-z0-9]*(-[a-z0-9]+)*-(type|types)$|^index$ # kebab-case で -type または -types で終わる、または index
-
-  # Constants ディレクトリ
-  "**/constants/**":
-    .ts: kebab-case
-
-  # Styles ディレクトリ
-  "**/styles/**":
-    .css: kebab-case
 
   # Public ディレクトリ
   public:
