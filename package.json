@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check && ls-lint",
-    "lint:fix": "biome check --write && ls-lint",
+    "lint:fix": "biome check --write; ls-lint",
     "lint:biome": "biome check",
+    "lint:biome:fix": "biome check --write",
     "lint:ls": "ls-lint",
     "format": "biome format --write"
   },
