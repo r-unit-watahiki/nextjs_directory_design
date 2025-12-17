@@ -1,5 +1,5 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Next.js 16のproxy.ts
 // 認証が必要なルートと不要なルートの制御
@@ -8,7 +8,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 公開ルート（認証不要）
-  const publicPaths = ["/login", "/register"];
+  const publicPaths = ['/login', '/register'];
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
 
   // TODO: 実際の認証チェックを実装する
@@ -44,6 +44,6 @@ export const config = {
      * - _next/image (画像最適化ファイル)
      * - favicon.ico (faviconファイル)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

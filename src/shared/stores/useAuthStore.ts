@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 /**
  * ユーザー情報の型定義
@@ -8,7 +8,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: "admin" | "staff" | "user";
+  role: 'admin' | 'staff' | 'user';
 }
 
 /**
@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
         }),
     }),
     {
-      name: "auth-storage",
+      name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,

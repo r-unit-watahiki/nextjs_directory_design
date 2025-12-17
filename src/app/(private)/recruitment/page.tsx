@@ -5,25 +5,25 @@ export default function RecruitmentPage() {
       <div className="space-y-6">
         {[
           {
-            id: "1",
-            title: "ホールスタッフ募集",
-            type: "アルバイト",
-            salary: "時給 1,200円〜",
-            status: "募集中",
+            id: '1',
+            title: 'ホールスタッフ募集',
+            type: 'アルバイト',
+            salary: '時給 1,200円〜',
+            status: '募集中',
           },
           {
-            id: "2",
-            title: "キッチンスタッフ募集",
-            type: "アルバイト",
-            salary: "時給 1,300円〜",
-            status: "募集中",
+            id: '2',
+            title: 'キッチンスタッフ募集',
+            type: 'アルバイト',
+            salary: '時給 1,300円〜',
+            status: '募集中',
           },
           {
-            id: "3",
-            title: "店長候補募集",
-            type: "正社員",
-            salary: "月給 280,000円〜",
-            status: "応募あり",
+            id: '3',
+            title: '店長候補募集',
+            type: '正社員',
+            salary: '月給 280,000円〜',
+            status: '応募あり',
           },
         ].map((job) => (
           <div key={job.id} className="bg-white p-6 rounded-lg shadow">
@@ -36,23 +36,18 @@ export default function RecruitmentPage() {
                   </span>
                   <span
                     className={`px-3 py-1 rounded-full text-sm ${
-                      job.status === "募集中"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-orange-100 text-orange-700"
+                      job.status === '募集中'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-orange-100 text-orange-700'
                     }`}
                   >
                     {job.status}
                   </span>
                 </div>
               </div>
-              <p className="text-lg font-semibold text-gray-700">
-                {job.salary}
-              </p>
+              <p className="text-lg font-semibold text-gray-700">{job.salary}</p>
             </div>
-            <button
-              type="button"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
+            <button type="button" className="text-blue-600 hover:text-blue-700 font-medium">
               詳細を見る →
             </button>
           </div>

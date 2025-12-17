@@ -11,32 +11,30 @@ export default function MessagesPage() {
           <div className="divide-y">
             {[
               {
-                id: "1",
-                name: "山田 太郎",
-                message: "明日のシフトについて",
-                time: "10:30",
+                id: '1',
+                name: '山田 太郎',
+                message: '明日のシフトについて',
+                time: '10:30',
                 unread: true,
               },
               {
-                id: "2",
-                name: "佐藤 花子",
-                message: "お疲れ様です",
-                time: "昨日",
+                id: '2',
+                name: '佐藤 花子',
+                message: 'お疲れ様です',
+                time: '昨日',
                 unread: false,
               },
               {
-                id: "3",
-                name: "鈴木 一郎",
-                message: "了解しました",
-                time: "2日前",
+                id: '3',
+                name: '鈴木 一郎',
+                message: '了解しました',
+                time: '2日前',
                 unread: false,
               },
             ].map((msg) => (
               <div
                 key={msg.id}
-                className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                  msg.unread ? "bg-blue-50" : ""
-                }`}
+                className={`p-4 hover:bg-gray-50 cursor-pointer ${msg.unread ? 'bg-blue-50' : ''}`}
               >
                 <div className="flex items-start justify-between mb-1">
                   <p className="font-semibold">{msg.name}</p>
@@ -56,9 +54,7 @@ export default function MessagesPage() {
           <div className="flex-1 p-4 space-y-4 overflow-y-auto">
             <div className="flex justify-start">
               <div className="bg-gray-100 rounded-lg px-4 py-2 max-w-[70%]">
-                <p className="text-sm">
-                  明日のシフトについて確認したいことがあります
-                </p>
+                <p className="text-sm">明日のシフトについて確認したいことがあります</p>
                 <span className="text-xs text-gray-500">10:30</span>
               </div>
             </div>

@@ -11,24 +11,21 @@ export default function DailyShiftPage() {
         </div>
         <div className="space-y-4">
           {[
-            { id: "1", name: "山田 太郎", time: "09:00 - 18:00", role: "店長" },
+            { id: '1', name: '山田 太郎', time: '09:00 - 18:00', role: '店長' },
             {
-              id: "2",
-              name: "佐藤 花子",
-              time: "10:00 - 19:00",
-              role: "スタッフ",
+              id: '2',
+              name: '佐藤 花子',
+              time: '10:00 - 19:00',
+              role: 'スタッフ',
             },
             {
-              id: "3",
-              name: "鈴木 一郎",
-              time: "13:00 - 22:00",
-              role: "スタッフ",
+              id: '3',
+              name: '鈴木 一郎',
+              time: '13:00 - 22:00',
+              role: 'スタッフ',
             },
           ].map((shift) => (
-            <div
-              key={shift.id}
-              className="flex items-center justify-between p-4 border rounded-lg"
-            >
+            <div key={shift.id} className="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <p className="font-semibold">{shift.name}</p>
                 <p className="text-sm text-gray-600">{shift.role}</p>

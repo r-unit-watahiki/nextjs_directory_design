@@ -1,13 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-export default function PrivateLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   // TODO: 実際の認証チェックを実装する
   // const session = await getSession();
   // if (!session) redirect('/login');
@@ -33,18 +29,18 @@ export default function PrivateLayout({
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [lastScrollY]);
 
   const navigationItems = [
-    { label: "曜日別WSシフト", href: "/shifts/weekly" },
-    { label: "日別勤務計画", href: "/shifts/daily" },
-    { label: "求人管理", href: "/recruitment" },
-    { label: "メッセージ", href: "/messages" },
+    { label: '曜日別WSシフト', href: '/shifts/weekly' },
+    { label: '日別勤務計画', href: '/shifts/daily' },
+    { label: '求人管理', href: '/recruitment' },
+    { label: 'メッセージ', href: '/messages' },
   ];
 
   return (
@@ -52,7 +48,7 @@ export default function PrivateLayout({
       {/* ヘッダー */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200 transition-transform duration-300 ${
-          isVisible ? "translate-y-0" : "-translate-y-full"
+          isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">

@@ -19,33 +19,26 @@ export default function WeeklyShiftPage() {
           <tbody>
             {[
               {
-                id: "1",
-                name: "山田 太郎",
-                shifts: ["○", "○", "○", "○", "○", "×", "×"],
+                id: '1',
+                name: '山田 太郎',
+                shifts: ['○', '○', '○', '○', '○', '×', '×'],
               },
               {
-                id: "2",
-                name: "佐藤 花子",
-                shifts: ["×", "○", "○", "○", "○", "○", "×"],
+                id: '2',
+                name: '佐藤 花子',
+                shifts: ['×', '○', '○', '○', '○', '○', '×'],
               },
               {
-                id: "3",
-                name: "鈴木 一郎",
-                shifts: ["○", "×", "×", "○", "○", "○", "○"],
+                id: '3',
+                name: '鈴木 一郎',
+                shifts: ['○', '×', '×', '○', '○', '○', '○'],
               },
             ].map((staff) => (
               <tr key={staff.id} className="border-b hover:bg-gray-50">
                 <td className="p-3">{staff.name}</td>
                 {staff.shifts.map((shift, shiftIndex) => (
-                  <td
-                    key={`${staff.id}-${shiftIndex}`}
-                    className="text-center p-3"
-                  >
-                    <span
-                      className={
-                        shift === "○" ? "text-green-600" : "text-red-600"
-                      }
-                    >
+                  <td key={`${staff.id}-${shiftIndex}`} className="text-center p-3">
+                    <span className={shift === '○' ? 'text-green-600' : 'text-red-600'}>
                       {shift}
                     </span>
                   </td>
