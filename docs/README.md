@@ -10,7 +10,7 @@
 - [App Router](./architecture/app-router.md) - App Router の使い方
 - [Features](./architecture/features.md) - Feature-based 構成の説明
 - [状態管理](./architecture/state-management.md) - Zustand を使用した状態管理
-- [使用ライブラリ](./architecture/libraries.md) - 使用・推奨ライブラリの一覧と説明
+- [使用ライブラリ](./architecture/libraries.md) - 使用ライブラリの一覧と説明
 
 ### Conventions（規約）
 
