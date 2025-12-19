@@ -351,26 +351,29 @@ const isFuture = isAfter(date, new Date());
 
 **ドキュメント**: [date-fns Documentation](https://date-fns.org)
 
-### lodash-es
+### es-toolkit
 
-**バージョン**: 未インストール（オプション）
-**用途**: ユーティリティ関数ライブラリ
+**バージョン**: 未インストール（推奨）
+**用途**: 高性能ユーティリティ関数ライブラリ
 
 ```bash
-yarn install lodash-es
-yarn install -D @types/lodash-es
+yarn install es-toolkit
 ```
 
 **特徴**:
 
-- 豊富なユーティリティ関数
-- ES モジュールでツリーシェイキング対応
-- 配列、オブジェクト、文字列などの操作
+- **高パフォーマンス**: Lodash と比較して 2〜3 倍高速
+- **小さいバンドルサイズ**: 他のライブラリと比較して最大 97% 小さい JavaScript コード
+- **モダンな実装**: 最新の JavaScript API を活用
+- **Lodash 互換性**: 完全な互換性レイヤーを提供
+- **型安全性**: すべての関数で堅牢な TypeScript 型を提供
+- **100% テストカバレッジ**: 高い信頼性
+- **全ランタイム対応**: Node.js、Deno、Bun、ブラウザをサポート
 
 **使用例**:
 
 ```typescript
-import { debounce, groupBy, uniqBy } from "lodash-es";
+import { debounce, groupBy, uniqBy } from "es-toolkit";
 
 // デバウンス
 const debouncedSearch = debounce((query: string) => {
@@ -378,15 +381,26 @@ const debouncedSearch = debounce((query: string) => {
 }, 300);
 
 // グループ化
-const grouped = groupBy(users, "role");
+const grouped = groupBy(users, (user) => user.role);
 
 // 重複排除
+const unique = uniqBy(users, (user) => user.id);
+```
+
+**Lodash からの移行**:
+
+```typescript
+// 互換性レイヤーを使用する場合
+import { debounce, groupBy, uniqBy } from "es-toolkit/compat";
+
+// Lodash と同じ API で使用可能
+const grouped = groupBy(users, "role");
 const unique = uniqBy(users, "id");
 ```
 
 **注意**: ネイティブの JavaScript メソッドで代替できる場合は、そちらを優先してください。
 
-**ドキュメント**: [Lodash Documentation](https://lodash.com/docs)
+**ドキュメント**: [es-toolkit Documentation](https://es-toolkit.dev)
 
 ---
 
@@ -506,18 +520,6 @@ export default async function UserPage({ params }: { params: { id: string } }) {
 
 **ドキュメント**: [Next.js Data Fetching](https://nextjs.org/docs/app/building-your-application/data-fetching)
 
-#### SWR / TanStack Query (React Query)
-
-**用途**: クライアントサイドのデータフェッチング（必要に応じて）
-
-これらのライブラリは、以下の場合に検討してください:
-
-- クライアントサイドでリアルタイム更新が必要な場合
-- 複雑なキャッシュ戦略が必要な場合
-- 楽観的更新や無限スクロールが必要な場合
-
-基本的には Next.js の Server Components と組み込み fetch API を優先し、クライアントサイドでの動的なデータフェッチが必要な場合にのみ追加を検討してください。
-
 ### UI コンポーネント
 
 このプロジェクトでは Tailwind CSS を使用してカスタムコンポーネントを実装することを推奨しています。
@@ -533,39 +535,6 @@ export default async function UserPage({ params }: { params: { id: string } }) {
 - **Radix UI**: アクセシビリティを重視したヘッドレスコンポーネント
 - **Headless UI**: Tailwind CSS との統合に最適化されたヘッドレスコンポーネント
 - **shadcn/ui**: Radix UI と Tailwind CSS を組み合わせた再利用可能なコンポーネント集
-
-## ライブラリ選定基準
-
-ライブラリを追加する際は、以下の基準を考慮してください。
-
-1. **メンテナンス状況**
-
-   - アクティブに開発されているか
-   - GitHub のスター数、issue の対応状況
-
-2. **バンドルサイズ**
-
-   - パフォーマンスへの影響
-   - ツリーシェイキング対応
-
-3. **TypeScript サポート**
-
-   - 型定義の充実度
-   - 型推論の精度
-
-4. **ドキュメント**
-
-   - 充実したドキュメント
-   - 実用的なサンプルコード
-
-5. **コミュニティ**
-
-   - エコシステムの充実
-   - Stack Overflow での質問数
-
-6. **Next.js との互換性**
-   - Server Components 対応
-   - App Router 対応
 
 ---
 
