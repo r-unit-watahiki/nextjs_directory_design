@@ -498,10 +498,10 @@ NEXT_PUBLIC_API_MOCKING=disabled # MSW無効
 
 ```bash
 # 通常の開発（モック無効）
-yarn dev
+npm run dev
 
 # モック有効で開発
-yarn dev:mock
+npm run dev:mock
 ```
 
 **Root Layout での使用:**

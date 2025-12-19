@@ -32,13 +32,13 @@ nextjs_directory_design/
 ### 依存関係のインストール
 
 ```bash
-yarn install
+npm install
 ```
 
 ### 開発サーバーの起動
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いて確認できます。

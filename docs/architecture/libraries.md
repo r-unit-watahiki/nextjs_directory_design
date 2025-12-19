@@ -146,7 +146,7 @@ export const useThemeStore = create<ThemeStore>()(
 **用途**: フォーム状態管理とバリデーション
 
 ```bash
-yarn install react-hook-form
+npm install react-hook-form
 ```
 
 **特徴**:
@@ -198,8 +198,8 @@ export function ContactForm() {
 **用途**: スキーマ定義とバリデーション
 
 ```bash
-yarn install zod
-yarn install @hookform/resolvers  # React Hook Form と併用する場合
+npm install zod
+npm install @hookform/resolvers  # React Hook Form と併用する場合
 ```
 
 **特徴**:
@@ -282,7 +282,7 @@ export function Card({ title }: CardProps) {
 **用途**: 条件付きクラス名の結合
 
 ```bash
-yarn install clsx
+npm install clsx
 ```
 
 **特徴**:
@@ -326,7 +326,7 @@ export function Button({ variant = "primary", size = "md" }: ButtonProps) {
 **用途**: 日付操作ライブラリ
 
 ```bash
-yarn install date-fns
+npm install date-fns
 ```
 
 **特徴**:
@@ -357,7 +357,7 @@ const isFuture = isAfter(date, new Date());
 **用途**: 高性能ユーティリティ関数ライブラリ
 
 ```bash
-yarn install es-toolkit
+npm install es-toolkit
 ```
 
 **特徴**:
