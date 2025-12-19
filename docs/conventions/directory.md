@@ -345,19 +345,30 @@ shared/
 
 ```
 lib/
-└── api/                     # 外部API統合（Rails APIなど）
-    ├── client.ts            # 基本的なAPIクライアント設定
-    ├── interceptors.ts      # リクエスト/レスポンスインターセプター
-    ├── schemas/             # Zodスキーマ定義
-    │   ├── auth.ts          # 認証関連スキーマ
-    │   ├── users.ts         # ユーザー関連スキーマ
-    │   ├── recruitments.ts  # 求人関連スキーマ
-    │   └── shifts.ts        # シフト関連スキーマ
-    └── endpoints/           # エンドポイントごとのAPI関数
-        ├── auth.ts          # 認証関連API
-        ├── users.ts         # ユーザー関連API
-        ├── recruitments.ts  # 求人関連API
-        └── shifts.ts        # シフト関連API
+├── api/                     # 外部API統合（Rails APIなど）
+│   ├── client.ts            # 基本的なAPIクライアント設定
+│   ├── interceptors.ts      # リクエスト/レスポンスインターセプター
+│   ├── schemas/             # Zodスキーマ定義
+│   │   ├── auth.ts          # 認証関連スキーマ
+│   │   ├── users.ts         # ユーザー関連スキーマ
+│   │   ├── recruitments.ts  # 求人関連スキーマ
+│   │   └── shifts.ts        # シフト関連スキーマ
+│   └── endpoints/           # エンドポイントごとのAPI関数
+│       ├── auth.ts          # 認証関連API
+│       ├── users.ts         # ユーザー関連API
+│       ├── recruitments.ts  # 求人関連API
+│       └── shifts.ts        # シフト関連API
+│
+└── msw/                     # MSW（Mock Service Worker）設定
+    ├── browser.ts           # ブラウザ用MSW初期化
+    ├── node.ts              # Node.js（テスト）用MSW初期化
+    ├── MSWProvider.tsx      # MSWプロバイダーコンポーネント
+    └── handlers/            # モックハンドラー
+        ├── index.ts         # 全ハンドラーを集約
+        ├── auth.ts          # 認証関連のモック
+        ├── users.ts         # ユーザー関連のモック
+        ├── recruitments.ts  # 求人関連のモック
+        └── shifts.ts        # シフト関連のモック
 ```
 
 #### API 統合の詳細（lib/api/）
@@ -433,6 +444,91 @@ export async function getRecruitments() {
   return await recruitmentApi.get();
 }
 ```
+
+#### MSW 統合の詳細（lib/msw/）
+
+開発・テスト環境でAPIモックを使用する場合の構成です。
+
+**各ファイルの役割:**
+
+1. **browser.ts**: ブラウザ環境用MSWの初期化（開発環境で使用）
+2. **node.ts**: Node.js環境用MSWの初期化（テスト環境で使用）
+3. **MSWProvider.tsx**: 環境変数に応じてMSWを起動するReactプロバイダー
+4. **handlers/**: モックハンドラーの定義（lib/api/endpoints/ と同じ分割単位）
+
+**handlers の例:**
+
+```typescript
+// lib/msw/handlers/auth.ts
+import { http, HttpResponse } from "msw";
+
+export const authHandlers = [
+  http.post("/api/v1/auth/login", () => {
+    return HttpResponse.json({
+      token: "mock-token",
+      user: { id: "1", email: "test@example.com" },
+    });
+  }),
+];
+```
+
+**handlers の集約:**
+
+```typescript
+// lib/msw/handlers/index.ts
+import { authHandlers } from "./auth";
+import { usersHandlers } from "./users";
+
+export const handlers = [
+  ...authHandlers,
+  ...usersHandlers,
+  // ...
+];
+```
+
+**環境変数による制御:**
+
+```bash
+# .env.local または package.json scripts
+NEXT_PUBLIC_API_MOCKING=enabled  # MSW有効
+NEXT_PUBLIC_API_MOCKING=disabled # MSW無効
+```
+
+**使用方法:**
+
+```bash
+# 通常の開発（モック無効）
+yarn dev
+
+# モック有効で開発
+yarn dev:mock
+```
+
+**Root Layout での使用:**
+
+```typescript
+// app/layout.tsx
+import { MSWProvider } from "@/lib/msw/MSWProvider";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <MSWProvider>
+          {children}
+        </MSWProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+**ルール:**
+
+- handlers の分割は lib/api/endpoints/ と同じ単位にする
+- 環境変数 `NEXT_PUBLIC_API_MOCKING=enabled` の場合のみMSWを起動
+- モックデータは実際のAPIレスポンスと同じ形式にする
+- Service Worker ファイル（mockServiceWorker.js）は public/ に配置
 
 ---
 
@@ -623,6 +719,7 @@ shared / utils / cn.ts; // className結合
 | **汎用ユーティリティ**     | `shared/utils/`               | format-date, cn                |
 | **サーバーアクション**     | `features/[name]/server/`     | actions.ts, queries.ts         |
 | **外部 API スキーマ**      | `lib/api/schemas/`            | recruitments.ts                |
+| **MSW モックハンドラー**   | `lib/msw/handlers/`           | auth.ts, users.ts              |
 
 ### 実践的な配置例
 
@@ -698,7 +795,19 @@ A: lib/api/client.ts
 - グローバルな設定
 ```
 
-#### 例 7: ダッシュボードページ
+#### 例 7: MSW モックハンドラー
+
+```
+Q: 認証APIのモックハンドラーはどこに配置する？
+A: lib/msw/handlers/auth.ts
+
+理由:
+- 外部ライブラリ（MSW）の設定
+- lib/api/endpoints/ と同じ分割単位
+- 開発・テスト環境でのモック用
+```
+
+#### 例 8: ダッシュボードページ
 
 ```
 Q: ダッシュボードページはどこに配置する？
