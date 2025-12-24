@@ -8,6 +8,7 @@
 
 - [概要](./architecture/overview.md) - システム全体像
 - [App Router](./architecture/app-router.md) - App Router の使い方
+- [データフェッチ戦略](./architecture/data-fetching.md) - Server/Client Components の使い分けとデータフェッチ方針
 - [Features](./architecture/features.md) - Feature-based 構成の説明
 - [状態管理](./architecture/state-management.md) - Zustand を使用した状態管理
 - [使用ライブラリ](./architecture/libraries.md) - 使用ライブラリの一覧と説明
