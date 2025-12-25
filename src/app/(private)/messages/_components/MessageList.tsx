@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Message } from '@/app/(private)/messages/_types';
+import { createMessage } from '@/features/message/server/actions';
 
 type Props = {
   initialMessages: Message[];
@@ -26,24 +27,12 @@ export function MessageList({ initialMessages }: Props) {
     setError(null);
 
     try {
-      // Next.js API Route に POST（revalidateTag が実行される）
-      const response = await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: newMessage,
-          senderId: '02eff36d-68ea-419e-a579-33b4f1fddb4d',
-          receiverId: 'a6f6e0f6-4756-4f6a-9fb1-071c0bca0445',
-        }),
+      // Server Action を呼び出し（revalidateTag が実行される）
+      const newMsg = await createMessage({
+        content: newMessage,
+        senderId: '02eff36d-68ea-419e-a579-33b4f1fddb4d',
+        receiverId: 'a6f6e0f6-4756-4f6a-9fb1-071c0bca0445',
       });
-
-      if (!response.ok) {
-        throw new Error('投稿に失敗しました');
-      }
-
-      const newMsg = await response.json();
 
       // ローカル状態を即座に更新（楽観的更新）
       setMessages((prev) => [...prev, newMsg]);
@@ -143,7 +132,7 @@ export function MessageList({ initialMessages }: Props) {
           <li>
             <strong>ブラウザA</strong>: この画面でメッセージを投稿
             <div className="ml-6 mt-1 text-xs">
-              → /api/messages で revalidateTag('messages') が実行される
+              → Server Action で revalidateTag('messages') が実行される
             </div>
           </li>
           <li>
