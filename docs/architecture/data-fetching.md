@@ -1,6 +1,7 @@
 # データフェッチ戦略
 
-このドキュメントでは、Next.js App Router におけるデータフェッチ戦略と、Server Components と Client Components の使い分け方針について説明します。
+このドキュメントでは、Next.js App Router におけるデータフェッチ戦略と、
+Server Components と Client Components の使い分け方針について説明します。
 
 ## 目次
 
@@ -373,13 +374,80 @@ export default async function RecruitmentPage() {
 
 Next.js はデフォルトで `fetch` のレスポンスをキャッシュします。
 
+#### キャッシュ戦略の選択
+
+適切なキャッシュ戦略を選択することで、パフォーマンスとデータの鮮度のバランスを最適化できます。
+
+| 方法                   | 動作                                        | 用途                                           |
+| ---------------------- | ------------------------------------------- | ---------------------------------------------- |
+| `force-cache` + `tags` | `revalidateTag` で手動クリア → 再キャッシュ | **推奨**: 投稿・更新時に最新化したい           |
+| `no-store`             | 常にフェッチ、キャッシュなし                | 常に最新データが必要（リアルタイムデータなど） |
+| `revalidate: 60`       | 60 秒ごとに自動再検証                       | 定期的に更新されるコンテンツ                   |
+
+#### revalidateTag を使った手動キャッシュ制御（推奨）
+
+`revalidateTag` は、データ更新時に関連するキャッシュを効率的にクリアする仕組みです。
+
+**重要なポイント**:
+
+- `revalidateTag` はキャッシュを永続的に無効化しません
+- 該当タグのキャッシュを一度だけクリアし、次のリクエストで再フェッチ → 再キャッシュされます
+- 投稿・更新 API と一覧ページの組み合わせに最適
+
+**実装例**:
+
+ページ側（データ取得）:
+
+```typescript
+// app/(private)/messages/page.tsx
+export default async function MessagesPage() {
+  const res = await fetch("http://localhost:3000/api/messages", {
+    next: { tags: ["messages"] },
+    cache: "force-cache",
+  });
+
+  const messages = await res.json();
+  return <MessageList messages={messages} />;
+}
+```
+
+API 側（更新 + キャッシュクリア）:
+
+```typescript
+// app/api/messages/route.ts
+import { revalidateTag } from "next/cache";
+import { db } from "@/lib/db";
+
+export async function POST(request: Request) {
+  const body = await request.json();
+
+  // データベースに保存
+  await db.message.create({ data: body });
+
+  // 'messages' タグのキャッシュを一度だけクリア
+  // 次のリクエストで再フェッチされ、新しいデータがキャッシュされる
+  revalidateTag("messages", {});
+
+  return Response.json({ success: true });
+}
+```
+
+**動作の流れ**:
+
+1. 初回アクセス時: データをフェッチし、`'messages'` タグでキャッシュ
+2. POST リクエスト: データを作成し、`revalidateTag('messages')` でキャッシュをクリア
+3. 次回アクセス時: キャッシュがないため再フェッチし、新しいデータをキャッシュ
+4. 以降のアクセス: キャッシュされたデータを返す（POST されるまで）
+
+#### その他のキャッシュ戦略
+
 ```typescript
 // 常に最新データを取得（キャッシュなし）
 const data = await fetch("https://api.example.com/data", {
   cache: "no-store",
 });
 
-// 60秒間キャッシュ
+// 60秒間キャッシュ（時間ベースの再検証）
 const data = await fetch("https://api.example.com/data", {
   next: { revalidate: 60 },
 });
@@ -732,18 +800,41 @@ async function UpcomingShifts() {
 
 ### 1. 適切なキャッシング戦略
 
+**推奨: `revalidateTag` を使った手動キャッシュ制御**
+
+データ更新が発生するアプリケーションでは、`revalidateTag` を使った手動キャッシュ制御が最も効率的です。
+
 ```typescript
-// 静的データ（商品情報など）
+// ページ側: タグ付きでキャッシュ
+const messages = await fetch("http://localhost:3000/api/messages", {
+  next: { tags: ["messages"] },
+  cache: "force-cache",
+});
+
+// API側: データ更新時にキャッシュをクリア
+import { revalidateTag } from "next/cache";
+
+export async function POST(request: Request) {
+  await db.message.create({ data: body });
+  revalidateTag("messages", {}); // 関連キャッシュをクリア
+  return Response.json({ success: true });
+}
+```
+
+**その他のキャッシュ戦略**
+
+```typescript
+// 静的データ（商品情報など）: 永続キャッシュ
 const products = await fetch("https://api.example.com/products", {
-  cache: "force-cache", // デフォルト: 永続キャッシュ
+  cache: "force-cache",
 });
 
-// 動的データ（株価、天気など）
+// リアルタイムデータ（株価、天気など）: キャッシュなし
 const weather = await fetch("https://api.example.com/weather", {
-  cache: "no-store", // キャッシュなし
+  cache: "no-store",
 });
 
-// 定期的に更新されるデータ（ニュースなど）
+// 定期更新データ（ニュースなど）: 時間ベース再検証
 const news = await fetch("https://api.example.com/news", {
   next: { revalidate: 3600 }, // 1時間ごとに再検証
 });
@@ -937,14 +1028,19 @@ export function ClientComponent() {
 ### 4. API Routes の適切な使用
 
 ```typescript
-// Good: 動的なデータ、認証が必要な操作
+// Good: データ更新 + キャッシュクリア（推奨）
 // app/api/messages/route.ts
+import { revalidateTag } from "next/cache";
+
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const body = await request.json();
   const message = await createMessage(body);
+
+  // 関連するキャッシュをクリア
+  revalidateTag("messages", {});
 
   return Response.json(message);
 }
